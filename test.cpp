@@ -23,6 +23,10 @@
 
 
 #define CATCH_CONFIG_MAIN
+//#define WITH_REAL_FS 1
+#ifndef WITH_REAL_FS
+#define WITH_REAL_FS 0
+#endif
 
 #include <catch.hpp>
 #include <algorithm>
@@ -33,6 +37,7 @@
 using namespace apathy;
 
 TEST_CASE("path", "Path functionality works as advertised") {
+#if WITH_REAL_FS
     SECTION("cwd", "And equivalent vs ==") {
         Path cwd(Path::cwd());
         Path empty("");
@@ -52,6 +57,7 @@ TEST_CASE("path", "Path functionality works as advertised") {
         empty = cwd;
         REQUIRE(cwd == empty);
     }
+#endif
 
     SECTION("operator+=", "Make sure operator<< works correctly") {
         Path root("/");
@@ -109,17 +115,17 @@ TEST_CASE("path", "Path functionality works as advertised") {
          */
         a = Path("/");
         REQUIRE(a.parent().string() == "/");
-
+#if WITH_REAL_FS
         a = Path("");
         REQUIRE(a.parent() != Path::cwd().parent());
         REQUIRE(a.parent().equivalent(Path::cwd().parent()));
-
+#endif
         a = Path("foo/bar");
         REQUIRE(a.parent().parent() == "");
         a = Path("foo/../bar/baz/a/../");
         REQUIRE(a.parent() == "bar/");
     }
-
+#if WITH_REAL_FS
     SECTION("makedirs", "Make sure we recursively make directories") {
         Path path("foo");
         REQUIRE(!path.exists());
@@ -195,6 +201,7 @@ TEST_CASE("path", "Path functionality works as advertised") {
         Path::rmdirs("bar");
         REQUIRE(!Path("bar").exists());
     }
+#endif
 
     SECTION("sanitize", "Make sure we can sanitize a path") {
         Path path("foo///bar/a/b/../c");
@@ -216,6 +223,7 @@ TEST_CASE("path", "Path functionality works as advertised") {
         REQUIRE(path.sanitize() == "a/b/c/");
     }
 
+#if WITH_REAL_FS
     SECTION("equivalent", "Make sure equivalent paths work") {
         Path a("foo////a/b/../c/");
         Path b("foo/a/c/");
@@ -225,6 +233,7 @@ TEST_CASE("path", "Path functionality works as advertised") {
         b = Path::cwd().parent().append("foo").append("bar").directory();
         REQUIRE(a.equivalent(b));
     }
+#endif
 
     SECTION("split", "Make sure we can get segments out") {
         Path a("foo/bar/baz");
@@ -266,6 +275,7 @@ TEST_CASE("path", "Path functionality works as advertised") {
         a = a.stem(); REQUIRE(a == Path("foo"));
     }
 
+#if WITH_REAL_FS
     SECTION("glob", "Make sure glob works") {
         /* We'll touch a bunch of files to work with */
         Path::makedirs("foo");
@@ -286,4 +296,5 @@ TEST_CASE("path", "Path functionality works as advertised") {
         REQUIRE(Path::rmdirs("foo"));
         REQUIRE(!Path("foo").exists());
     }
+#endif
 }

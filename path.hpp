@@ -34,6 +34,11 @@
 #include <iostream>
 #include <iterator>
 
+#ifndef WITH_REAL_FS
+#define WITH_REAL_FS 0
+#endif
+
+#if WITH_REAL_FS
 /* C includes */
 #include <glob.h>
 #include <errno.h>
@@ -42,6 +47,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#endif
 
 /* A class for path manipulation */
 namespace apathy {
@@ -105,7 +111,7 @@ namespace apathy {
          *
          * @param segment - path segment to add to this path */
         Path operator+(const Path& segment) const;
-
+#if WITH_REAL_FS
         /* Check if the two paths are equivalent
          *
          * Two paths are equivalent if they point to the same resource, even if
@@ -113,7 +119,7 @@ namespace apathy {
          *
          * @param other - path to compare to */
         bool equivalent(const Path& other);
-
+#endif
         /* Return a string version of this path */
         std::string string() const { return path; }
 
@@ -145,11 +151,13 @@ namespace apathy {
         /* Move up one level in the directory structure */
         Path& up();
 
+#if WITH_REAL_FS
         /* Turn this into an absolute path
          *
          * If the path is already absolute, it has no effect. Otherwise, it is
          * evaluated relative to the current working directory */
         Path& absolute();
+#endif
 
         /* Sanitize this path
          *
@@ -245,10 +253,9 @@ namespace apathy {
          * @param segments - the path segments to concatenate
          */
         static Path join(const std::vector<Segment>& segments);
-
+#if WITH_REAL_FS
         /* Current working directory */
         static Path cwd();
-
         /* Create a file if one does not exist
          *
          * @param p - path to create
@@ -288,6 +295,7 @@ namespace apathy {
          *
          * @param pattern - the glob pattern to match */
         static std::vector<Path> glob(const std::string& pattern);
+#endif
 
         /* So that we can write paths out to ostreams */
         friend std::ostream& operator<<(std::ostream& stream, const Path& p) {
@@ -318,13 +326,13 @@ namespace apathy {
         result.append(segment);
         return result;
     }
-
+#if WITH_REAL_FS
     inline bool Path::equivalent(const Path& other) {
         /* Make copies of both paths, sanitize, and ensure they're equal */
         return Path(path).absolute().sanitize() ==
                Path(other).absolute().sanitize();
     }
-
+#endif
     inline std::string Path::filename() const {
         size_t pos = path.rfind(separator);
         if (pos != std::string::npos) {
@@ -394,7 +402,8 @@ namespace apathy {
         }
         return directory();
     }
-
+    
+#if WITH_REAL_FS
     inline Path& Path::absolute() {
         /* If the path doesn't begin with our separator, then it's not an
          * absolute path, and should be appended to the current working
@@ -405,6 +414,7 @@ namespace apathy {
         }
         return *this;
     }
+#endif 
 
     inline Path& Path::sanitize() {
         /* Split the path up into segments */
@@ -504,6 +514,7 @@ namespace apathy {
         return path.size() && path[path.length() - 1] == separator;
     }
 
+#if WITH_REAL_FS
     inline bool Path::exists() const {
         struct stat buf;
         if (stat(path.c_str(), &buf) != 0) {
@@ -538,7 +549,7 @@ namespace apathy {
             return buf.st_size;
         }
     }
-
+#endif
     /**************************************************************************
      * Static Utility Methods
      *************************************************************************/
@@ -561,7 +572,7 @@ namespace apathy {
         }
         return Path(path);
     }
-
+#if WITH_REAL_FS
     inline Path Path::cwd() {
         Path p;
 
@@ -729,6 +740,7 @@ namespace apathy {
         }
         return results;
     }
+#endif
 }
 
 #endif
