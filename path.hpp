@@ -203,7 +203,7 @@ namespace apathy {
 
         /* Returns a vector of each of the path segments in this path */
         std::vector<Segment> split() const;
-
+#if WITH_REAL_FS
         /**********************************************************************
          * Type Tests
          *********************************************************************/
@@ -235,7 +235,7 @@ namespace apathy {
          * Returns the file size in bytes. If the file doesn't exist, it
          * returns 0 */
         size_t size() const;
-
+#endif
         /**********************************************************************
          * Static Utility Methods
          *********************************************************************/
