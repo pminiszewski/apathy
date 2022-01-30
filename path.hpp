@@ -203,7 +203,6 @@ namespace apathy {
 
         /* Returns a vector of each of the path segments in this path */
         std::vector<Segment> split() const;
-#if WITH_REAL_FS
         /**********************************************************************
          * Type Tests
          *********************************************************************/
@@ -213,6 +212,7 @@ namespace apathy {
         /* Does the path have a trailing slash? */
         bool trailing_slash() const;
 
+#if WITH_REAL_FS
         /* Does this path exist?
          *
          * Returns true if the path can be `stat`d */
